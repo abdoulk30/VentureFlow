@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Premium background defaults matching your PRD slate/zinc theme specifications */
-@layer base {
-  body {
-    @apply bg-zinc-50 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50 antialiased;
-  }
+body {
+  background-color: rgb(9, 9, 11);
+  color: rgb(250, 250, 250);
+  font-family: sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
