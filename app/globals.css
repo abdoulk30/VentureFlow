@@ -2,9 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: rgb(9, 9, 11);
-  color: rgb(250, 250, 250);
-  font-family: sans-serif;
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  body {
+    background-color: #08080d;
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Slick dashboard specific scrollbars to match high-fidelity visuals */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #08080d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1a1a28;
+  border-radius: 6px;
 }
