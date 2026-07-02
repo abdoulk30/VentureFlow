@@ -47,7 +47,7 @@ export default function AuthPage() {
         if (authError) throw authError;
 
         if (authData?.user) {
-          // Exact payload match to your Postgres structural schema layout
+          // Sync with the updated database schema permissions layout
           const { error: profileError } = await supabase
             .from('profiles')
             .upsert({
@@ -63,6 +63,7 @@ export default function AuthPage() {
           setSuccessMsg('Registration initialized! Please check your email inbox to verify your secure portal link.');
         }
       } else {
+        // Log in utilizing the modern cookie framework matching the server environment
         const { error: loginError } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -70,8 +71,8 @@ export default function AuthPage() {
 
         if (loginError) throw loginError;
 
-        router.push('/');
-        router.refresh();
+        // Force a full window refresh to ensure the server component reads the new cookies perfectly
+        window.location.href = '/';
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected authentication error occurred.');
