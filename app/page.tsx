@@ -2,8 +2,9 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import TargetMetricCard from '../components/TargetMetricCard';
-import SettingsPanel from '@/components/SettingsPanel';
+import SettingsPanel from '../components/SettingsPanel';
 import InvestorDetailModal from '../components/InvestorDetailModal';
+import InvestorSearchHub from '@/components/InvestorSearchHub'; // New import
 import { 
   Zap, User, Building2, TrendingUp, Sparkles, 
   Layers, Target, Briefcase, ChevronRight, BarChart3,
@@ -24,9 +25,9 @@ export interface EcosystemParticipant {
   sector: string;
   stage: string;
   fundingValue: string;
-  website: string;         // New data attribute
-  pastInvestments: string; // New data attribute
-  responseTime: string;    // New data attribute
+  website: string;
+  pastInvestments: string;
+  responseTime: string;
 }
 
 export default async function DashboardPage({
@@ -81,7 +82,6 @@ export default async function DashboardPage({
   const isFounder = profile.user_role === 'founder';
   const isProfileComplete = !!(profile.primary_sector && profile.city && profile.funding_stage_or_target);
 
-  // Expanded with real-world website directories & portfolio data records
   const realInvestorPool: EcosystemParticipant[] = [
     { 
       id: "gradient", 
@@ -207,6 +207,12 @@ export default async function DashboardPage({
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <nav className="flex gap-6 text-xs font-mono tracking-wider uppercase">
             <a href={`?tab=overview${viewingId ? `&viewing=${viewingId}` : ''}`} className={`py-3.5 px-1 font-semibold border-b-2 transition-all ${currentTab === 'overview' ? 'border-purple-500 text-white' : 'border-transparent text-neutral-400 hover:text-white'}`}>Main Dashboard</a>
+            
+            {/* BRAND NEW UPDATED SUB-NAV BUTTON LINK */}
+            <a href={`?tab=search${viewingId ? `&viewing=${viewingId}` : ''}`} className={`py-3.5 px-1 font-semibold border-b-2 transition-all ${currentTab === 'search' ? 'border-purple-500 text-white' : 'border-transparent text-neutral-400 hover:text-white'}`}>
+              <div className="flex items-center gap-1.5"><Search className="w-3.5 h-3.5" /> Explore Investors</div>
+            </a>
+            
             <a href={`?tab=settings${viewingId ? `&viewing=${viewingId}` : ''}`} className={`py-3.5 px-1 font-semibold border-b-2 transition-all ${currentTab === 'settings' ? 'border-purple-500 text-white' : 'border-transparent text-neutral-400 hover:text-white'}`}>
               <div className="flex items-center gap-1.5"><Settings className="w-3.5 h-3.5" /> Edit Profile Settings</div>
             </a>
@@ -217,6 +223,9 @@ export default async function DashboardPage({
       <main className="max-w-7xl mx-auto px-6 py-10">
         {currentTab === 'settings' ? (
           <SettingsPanel profile={profile} userId={user.id} />
+        ) : currentTab === 'search' ? (
+          /* CONDITIONALLY RENDERING THE NEW EXPLORATION BLOCK */
+          <InvestorSearchHub investors={realInvestorPool} />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* LEFT MAIN DATA REGION */}
