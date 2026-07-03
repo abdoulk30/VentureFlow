@@ -20,10 +20,11 @@ module.exports = {
         destructive: '#f43f5e',    // Red
         mutedText: '#6b6b84',      // Neutral gray text
         customBorder: 'rgba(255, 255, 255, 0.07)', // Ultra-thin figma line
+        foreground: '#f1f1f5',
       },
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['var(--font-sans)', 'sans-serif'],
+        mono: ['var(--font-mono)', 'monospace'],
       },
       borderRadius: {
         DEFAULT: '6px',

@@ -1,308 +1,181 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowRight, ArrowLeft, ShieldCheck, Briefcase, Landmark } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
+import { supabase } from "@/utils/supabase/client";
+import { STAGES, US_STATES } from "@/lib/constants";
 
-type Role = "founder" | "investor" | null;
+// Simplified on purpose: only fields that actually exist in `profiles` and
+// actually get saved. Industry options come from real data (marketOptions),
+// not a made-up list, so this stays consistent with the Funding Likelihood
+// page later.
 
-export function OnboardingWizard() {
-  const [step, setStep] = useState(1);
-  const [role, setRole] = useState<Role>(null);
-  
-  // Shared Form State
-  const [fullName, setFullName] = useState("");
-  const [city, setCity] = useState("");
-  const [primarySector, setPrimarySector] = useState("");
+export function OnboardingWizard({
+  userId,
+  initialCity,
+  initialState,
+  initialSector,
+  initialStage,
+  marketOptions,
+}: {
+  userId: string;
+  initialCity: string;
+  initialState: string;
+  initialSector: string;
+  initialStage: string;
+  marketOptions: string[];
+}) {
+  const router = useRouter();
+  const [city, setCity] = useState(initialCity ?? "");
+  const [state, setState] = useState(initialState ?? "");
+  const [sector, setSector] = useState(
+    marketOptions.includes(initialSector) ? initialSector : ""
+  );
+  const [stage, setStage] = useState(initialStage ?? "");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Founder Specific State
-  const [companyName, setCompanyName] = useState("");
-  const [fundingStage, setFundingStage] = useState("");
-  const [fundsNeeded, setFundsNeeded] = useState("");
-
-  // Investor Specific State
-  const [fundName, setFundName] = useState("");
-  const [maxCheckSize, setMaxCheckSize] = useState("");
-
-  const handleNext = () => setStep((prev) => prev + 1);
-  const handleBack = () => setStep((prev) => prev - 1);
-
-  const handleRoleSelection = (selectedRole: Role) => {
-    setRole(selectedRole);
-    handleNext();
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Account Simulation Complete! Role: ${role}, Complete Profile: True`);
-    // This will connect directly to our Supabase database hook in Phase 4
+    setLoading(true);
+    setError(null);
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        city,
+        state,
+        primary_sector: sector,
+        funding_stage_or_target: stage,
+        is_profile_complete: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userId);
+
+    if (updateError) {
+      setError(updateError.message);
+      setLoading(false);
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh();
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl overflow-hidden p-6 sm:p-10 transition-colors duration-200">
-      
-      {/* Progress Metric Tracker */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-            Step {step} of 3
-          </span>
-          <span className="text-xs font-medium text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md">
-            {step === 1 && "Account Fundamentals"}
-            {step === 2 && "Select Target Path"}
-            {step === 3 && "Tailor Mandate Variables"}
-          </span>
+    <div className="w-full max-w-md bg-cardBg border border-customBorder rounded-xl p-8">
+      <h2 className="text-lg font-bold text-white">Complete Your Profile</h2>
+      <p className="text-xs text-mutedText mt-1 mb-6">
+        This unlocks the Funding Likelihood tool. You can already browse
+        without filling this out.
+      </p>
+
+      {error && (
+        <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded text-xs">
+          {error}
         </div>
-        <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden">
-          <div 
-            className="bg-zinc-900 dark:bg-white h-1.5 transition-all duration-300 ease-in-out"
-            style={{ width: `${(step / 3) * 100}%` }}
-          />
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-wider text-mutedText mb-1.5">
+              City
+            </label>
+            <input
+              required
+              value={city ?? ""}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="e.g. New York"
+              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white placeholder-mutedText outline-none focus:border-accentPrimary/50"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-wider text-mutedText mb-1.5">
+              State
+            </label>
+            <select
+              required
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+            >
+              <option value="">Select...</option>
+              {US_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        
-        {/* ================= STEP 1: GENERAL METADATA ================= */}
-        {step === 1 && (
-          <div className="space-y-4 animate-fadeIn">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Initialize Your Profile</h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Let's get the absolute baseline fundamentals out of the way.</p>
-            </div>
-            
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Full Name</label>
-                <input 
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g., Abdoul Ba"
-                  className="w-full px-3.5 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-transparent text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
-                />
-              </div>
+        <div>
+          <label className="block text-xs font-mono uppercase tracking-wider text-mutedText mb-1.5">
+            Industry
+          </label>
+          <select
+            required
+            value={sector}
+            onChange={(e) => setSector(e.target.value)}
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+          >
+            <option value="">Select...</option>
+            {marketOptions.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
+          <p className="text-[10px] text-mutedText mt-1">
+            What kind of business you run (e.g. Software, Biotech, E-Commerce).
+          </p>
+        </div>
 
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Operational City Hub</label>
-                <input 
-                  type="text"
-                  required
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="e.g., New York, San Francisco"
-                  className="w-full px-3.5 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-transparent text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
-                />
-              </div>
+        <div>
+          <label className="block text-xs font-mono uppercase tracking-wider text-mutedText mb-1.5">
+            Funding Stage
+          </label>
+          <select
+            required
+            value={stage}
+            onChange={(e) => setStage(e.target.value)}
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+          >
+            <option value="">Select...</option>
+            {STAGES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-[10px] text-mutedText mt-1">
+            How far along you are in raising money.
+          </p>
+        </div>
 
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Primary Operational Sector</label>
-                <select
-                  required
-                  value={primarySector}
-                  onChange={(e) => setPrimarySector(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
-                >
-                  <option value="">Select a market vector...</option>
-                  <option value="FinTech">FinTech (Financial Technology)</option>
-                  <option value="B2B SaaS">B2B SaaS / Enterprise Infrastructure</option>
-                  <option value="AI / Machine Learning">AI / Machine Learning Systems</option>
-                  <option value="Biotech">Biotech / Healthcare Systems</option>
-                  <option value="Logistics">Logistics / Supply Chain Logistics</option>
-                </select>
-              </div>
-            </div>
+        <div className="bg-surfaceMuted/50 border border-dashed border-customBorder p-3 rounded-lg flex items-start gap-2.5">
+          <ShieldCheck size={14} className="text-mutedText shrink-0 mt-0.5" />
+          <p className="text-[11px] text-mutedText leading-relaxed">
+            These three fields are all that's needed to mark your profile
+            complete. You can add more details later in Settings.
+          </p>
+        </div>
 
-            <button
-              type="button"
-              disabled={!fullName || !city || !primarySector}
-              onClick={handleNext}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-            >
-              Continue Configuration <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
-        {/* ================= STEP 2: THE CONDITIONAL FORK IN THE ROAD ================= */}
-        {step === 2 && (
-          <div className="space-y-4 animate-fadeIn">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Choose Your Workspace Identity</h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Select the path matching your explicit platform goals.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <button
-                type="button"
-                onClick={() => handleRoleSelection("founder")}
-                className={`flex flex-col p-5 border text-left rounded-xl transition-all group hover:border-zinc-400 dark:hover:border-zinc-600 ${role === "founder" ? "border-zinc-900 dark:border-white bg-zinc-50/50 dark:bg-zinc-900/50" : "border-zinc-200 dark:border-zinc-800"}`}
-              >
-                <div className="h-10 w-10 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                  <Briefcase className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
-                </div>
-                <span className="font-semibold text-zinc-900 dark:text-white text-base">I am a Founder</span>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
-                  Looking to test funding models, view local viability, and secure direct matchmaking funnels.
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleRoleSelection("investor")}
-                className={`flex flex-col p-5 border text-left rounded-xl transition-all group hover:border-zinc-400 dark:hover:border-zinc-600 ${role === "investor" ? "border-zinc-900 dark:border-white bg-zinc-50/50 dark:bg-zinc-900/50" : "border-zinc-200 dark:border-zinc-800"}`}
-              >
-                <div className="h-10 w-10 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                  <Landmark className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
-                </div>
-                <span className="font-semibold text-zinc-900 dark:text-white text-base">I am an Investor</span>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
-                  Looking to calibrate specific investment mandates and parse highly ranked, high-probability deal flow.
-                </span>
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleBack}
-              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white pt-4 transition-colors font-medium"
-            >
-              <ArrowLeft className="h-3 w-3" /> Go Back
-            </button>
-          </div>
-        )}
-
-        {/* ================= STEP 3A: THE FOUNDER QUESTION DATA SET ================= */}
-        {step === 3 && role === "founder" && (
-          <div className="space-y-4 animate-fadeIn">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Startup Specifications</h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Configure your target milestones to initialize the algorithmic baseline.</p>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Company Name</label>
-                <input 
-                  type="text"
-                  required
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="e.g., VentureFlow Technology Labs"
-                  className="w-full px-3.5 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-transparent text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Target Stage</label>
-                  <select
-                    required
-                    value={fundingStage}
-                    onChange={(e) => setFundingStage(e.target.value)}
-                    className="w-full px-3.5 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Pre-Seed">Pre-Seed</option>
-                    <option value="Seed">Seed Stage</option>
-                    <option value="Series A">Series A</option>
-                    <option value="Series B">Series B</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Capital Needed (USD)</label>
-                  <input 
-                    type="number"
-                    required
-                    value={fundsNeeded}
-                    onChange={(e) => setFundsNeeded(e.target.value)}
-                    placeholder="e.g., 500000"
-                    className="w-full px-3.5 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-transparent text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Two-Tiered Quality Notification Box */}
-              <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-dashed border-zinc-200 dark:border-zinc-800 p-4 rounded-xl flex items-start gap-3 mt-4">
-                <ShieldCheck className="h-5 w-5 text-zinc-400 dark:text-zinc-500 shrink-0 mt-0.5" />
-                <div className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  <span className="font-semibold text-zinc-900 dark:text-white block mb-0.5">Two-Tiered Fast-Track Enabled</span>
-                  You can jump right in with this baseline profile! Deep semantic items like company descriptions and long-term milestones remain completely optional and can be filled out anytime inside your dashboard hub to boost your final predictive match alignment.
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 gap-4">
-              <button
-                type="button"
-                onClick={handleBack}
-                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors font-medium"
-              >
-                <ArrowLeft className="h-3 w-3" /> Change Role
-              </button>
-              <button
-                type="submit"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 transition-colors shadow"
-              >
-                Launch Custom Dashboard
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ================= STEP 3B: THE INVESTOR QUESTION DATA SET ================= */}
-        {step === 3 && role === "investor" && (
-          <div className="space-y-4 animate-fadeIn">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Fund Parameters & Limits</h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Calibrate your deployment criteria to establish your automatic inbound filtering.</p>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Fund or Institutional Name</label>
-                <input 
-                  type="text"
-                  required
-                  value={fundName}
-                  onChange={(e) => setFundName(e.target.value)}
-                  placeholder="e.g., Matrix Capital Ventures"
-                  className="w-full px-3.5 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-transparent text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Maximum Preferred Check Size (USD)</label>
-                <input 
-                  type="number"
-                  required
-                  value={maxCheckSize}
-                  onChange={(e) => setMaxCheckSize(e.target.value)}
-                  placeholder="e.g., 2000000"
-                  className="w-full px-3.5 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-transparent text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 gap-4">
-              <button
-                type="button"
-                onClick={handleBack}
-                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors font-medium"
-              >
-                <ArrowLeft className="h-3 w-3" /> Change Role
-              </button>
-              <button
-                type="submit"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 transition-colors shadow"
-              >
-                Initialize Allocation Engine
-              </button>
-            </div>
-          </div>
-        )}
-
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-accentPrimary hover:bg-accentPrimary/90 disabled:opacity-50 text-white text-sm font-bold rounded transition-colors"
+        >
+          {loading ? (
+            <Loader2 size={15} className="animate-spin" />
+          ) : (
+            <>
+              Save & Continue <ArrowRight size={15} />
+            </>
+          )}
+        </button>
       </form>
     </div>
   );

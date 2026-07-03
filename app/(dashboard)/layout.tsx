@@ -1,153 +1,133 @@
-"use client";
-
-import React, { useState } from "react";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { 
-  LayoutDashboard, 
-  Layers, 
-  GitPullRequest, 
-  User, 
-  Menu, 
-  X, 
-  TrendingUp 
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+import {
+  LayoutDashboard,
+  Sparkles,
+  Building2,
+  Briefcase,
+  Zap,
+  AlertCircle,
+  Settings as SettingsIcon,
+  BarChart3,
 } from "lucide-react";
+import SignOutButton from "@/components/SignOutButton";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const supabase = await createClient();
 
-  // Core navigation items matching your PRD Sub-journeys
-  const navigationItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "AI Predictor Hub", href: "/predict", icon: TrendingUp },
-    { name: "Investor Matches", href: "/matches", icon: Layers },
-    { name: "Connections Flow", href: "/connections", icon: GitPullRequest },
-    { name: "Profile Settings", href: "/profile", icon: User },
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  const isProfileComplete = !!profile?.is_profile_complete;
+  const isFounder = profile?.user_role === "founder";
+
+  // Founders only browse investors; investors only browse startups.
+  const navItems = [
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/predict", label: "Funding Likelihood", icon: Sparkles },
+    isFounder
+      ? { href: "/browse/investors", label: "Browse Investors", icon: Building2 }
+      : { href: "/browse/startups", label: "Browse Startups", icon: Briefcase },
+    { href: "/directories", label: "Directories", icon: BarChart3 },
+    { href: "/settings", label: "Settings", icon: SettingsIcon },
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-200">
-      
-      {/* 1. DESKTOP & LAPTOP PERMANENT LEFT SIDEBAR */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 md:flex flex-col">
-        <div className="h-16 flex items-center px-6 border-b border-zinc-200 dark:border-zinc-800">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-zinc-900 dark:text-white">
-            <span className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 px-2 py-0.5 rounded-md font-mono text-lg">VF</span>
+    <div className="bg-background text-foreground h-screen flex overflow-hidden">
+      <aside className="hidden lg:flex flex-col h-full w-60 shrink-0 border-r border-border bg-sidebarBg">
+        <div className="h-14 flex items-center gap-2.5 px-5 border-b border-customBorder shrink-0">
+          <div className="size-7 rounded-md bg-accentPrimary flex items-center justify-center shrink-0">
+            <Zap size={14} className="text-white" />
+          </div>
+          <span className="font-semibold text-sm tracking-tight text-white">
             VentureFlow
-          </Link>
+          </span>
         </div>
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-all duration-150 group"
-              >
-                <Icon className="h-4 w-4 shrink-0 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
-                {item.name}
-              </Link>
-            );
-          })}
+
+        <div className="px-4 pt-4 pb-2">
+          <div className="flex items-center gap-2 px-3 py-2 rounded bg-surfaceMuted border border-customBorder">
+            {isFounder ? (
+              <Briefcase size={12} className="text-accentPrimary shrink-0" />
+            ) : (
+              <Building2 size={12} className="text-accentSuccess shrink-0" />
+            )}
+            <span className="text-xs text-mutedText">
+              {isFounder ? "Founder Portal" : "Investor Portal"}
+            </span>
+          </div>
+        </div>
+
+        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+          {navItems.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded text-sm text-mutedText hover:bg-surfaceMuted hover:text-white transition-colors"
+            >
+              <Icon size={15} />
+              {label}
+            </Link>
+          ))}
         </nav>
-        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex items-center justify-between">
+
+        {!isProfileComplete && (
+          <div className="mx-3 mb-3 p-3 rounded-lg border border-dashed border-accentPrimary/40 bg-accentPrimary/5">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={13} className="text-accentPrimary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[11px] text-white font-medium">Profile incomplete</p>
+                <p className="text-[10px] text-mutedText mt-0.5 leading-relaxed">
+                  Finish your profile to unlock funding predictions.
+                </p>
+                <Link
+                  href="/onboarding"
+                  className="inline-block mt-2 text-[10px] font-mono uppercase tracking-wider text-accentPrimary hover:underline"
+                >
+                  Complete Profile &rarr;
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="border-t border-customBorder px-4 py-4 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center font-bold text-xs text-zinc-700 dark:text-zinc-300">
-              AB
+            <div className="size-8 rounded-full bg-gradient-to-br from-accentPrimary to-accentSuccess flex items-center justify-center shrink-0">
+              <span className="text-[11px] font-semibold text-white">
+                {profile?.full_name?.charAt(0) ?? "?"}
+              </span>
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-semibold text-zinc-900 dark:text-white truncate">Abdoul Ba</span>
-              <span className="text-[10px] text-zinc-400 truncate">Founder Profile</span>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-medium text-white truncate">
+                {profile?.full_name ?? "Unknown"}
+              </p>
+              <p className="text-[10px] text-mutedText truncate">
+                {profile?.company_name || (isFounder ? "Founder" : "Investor")}
+              </p>
             </div>
+            <SignOutButton />
           </div>
         </div>
       </aside>
 
-      {/* MOBILE DRAWER / SLIDE-OUT MENU OVERLAY */}
-      {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 z-50 bg-zinc-950/40 backdrop-blur-sm md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* 2. MOBILE DRAWER NAVIGATION PANEL */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-6 transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between pb-6 border-b border-zinc-200 dark:border-zinc-800">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-zinc-900 dark:text-white">
-            <span className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 px-2 py-0.5 rounded-md font-mono text-lg">VF</span>
-            VentureFlow
-          </Link>
-          <button 
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="p-1 rounded-md text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <nav className="flex-1 py-6 space-y-1">
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                <Icon className="h-5 w-5 shrink-0" />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center font-bold text-sm text-zinc-700 dark:text-zinc-300">
-              AB
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-zinc-900 dark:text-white">Abdoul Ba</span>
-              <span className="text-xs text-zinc-400">Founder Account</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. MAIN WORKSPACE WRAPPER (CONTAINING STICKY TOP HEADER) */}
-      <div className="md:pl-64 flex flex-col min-h-screen">
-        {/* STICKY TOP HEADER */}
-        <header className="sticky top-0 z-30 h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md flex items-center justify-between px-4 sm:px-6 lg:px-8 transition-colors duration-200">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 -ml-2 rounded-md text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 md:hidden transition-colors"
-              aria-label="Open navigation menu"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hidden sm:block">
-              Workspace / <span className="text-zinc-900 dark:text-white font-semibold">Overview</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Theme Controller button integrated cleanly */}
-            <ThemeToggle />
-            <div className="h-8 w-px bg-zinc-200 dark:border-zinc-800 hidden sm:block" />
-            <div className="h-8 w-8 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hidden sm:flex items-center justify-center font-mono font-bold text-xs shadow-sm">
-              VF
-            </div>
-          </div>
-        </header>
-
-        {/* RECONFIGURING CONTENT INNER CORE AREA */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <main className="flex-1 overflow-y-auto px-4 lg:px-6 py-5">
           {children}
         </main>
       </div>

@@ -1,4 +1,8 @@
 {
-  "/auth/page": "app/auth/page.js",
-  "/page": "app/page.js"
+  "/api/city-funding-by-market/route": "app/api/city-funding-by-market/route.js",
+  "/onboarding/page": "app/onboarding/page.js",
+  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
+  "/(dashboard)/directories/page": "app/(dashboard)/directories/page.js",
+  "/(dashboard)/browse/startups/page": "app/(dashboard)/browse/startups/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js"
 }

@@ -1,13 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import "@/app/globals.css"; // Ensure your standard Tailwind global CSS file is imported
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import "@/app/globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500"],
+});
 
 export const metadata: Metadata = {
   title: "VentureFlow | AI Matchmaker & Funding Predictor",
-  description: "Democratizing access to venture capital through predictive market intelligence.",
+  description:
+    "Democratizing access to venture capital through predictive market intelligence.",
 };
 
 export default function RootLayout({
@@ -16,16 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background text-foreground antialiased min-h-screen`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+    <html lang="en" className={`dark ${plusJakarta.variable} ${jetbrainsMono.variable}`}>
+      <body className="font-sans bg-background text-foreground antialiased min-h-screen">
+        {children}
       </body>
     </html>
   );
