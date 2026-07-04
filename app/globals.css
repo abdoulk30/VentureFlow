@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   Replace your existing :root { ... } block with this one.
+   Two new variables (--secondary-surface, --sidebar-active) are
+   introduced here -- you'll also need to add their dark-mode
+   equivalents to your EXISTING .dark { ... } block (shown below,
+   just add these two lines into it, don't replace the whole block).
+   ============================================================ */
+
+:root {
+  /* Light mode -- exact values from your Figma palette */
+  --background: 232 232 240;         /* #e8e8f0 */
+  --card-bg: 240 240 248;            /* #f0f0f8 */
+  --secondary-surface: 220 220 234;  /* #dcdcea */
+  --surface-muted: 226 226 236;      /* #e2e2ec -- "Muted surfaces" */
+  --sidebar-bg: 222 222 232;         /* #dedee8 */
+  --sidebar-active: 208 208 224;     /* #d0d0e0 */
+  --custom-border: 0 0 0;
+  --custom-border-alpha: 0.11;       /* rgba(0,0,0,0.11) as specified */
+
+  --accent-primary: 109 78 240;
+  --accent-success: 0 166 122;
+  --accent-info: 2 132 199;
+  --accent-warning: 234 88 12;
+  --destructive: 220 38 38;
+  --muted-text: 100 110 130;
+  --secondary-text: 71 85 105;
+  --foreground: 24 24 27;
+}
+
+
+
+.dark {
+  /* Dark mode (original Visualize palette -- unchanged) */
+  --background: 8 8 13;
+  --card-bg: 15 15 23;
+  --sidebar-bg: 12 12 20;
+  --surface-muted: 26 26 40;
+  --accent-primary: 124 92 252;
+  --accent-success: 0 229 160;
+  --accent-info: 56 189 248;
+  --accent-warning: 251 146 60;
+  --destructive: 244 63 94;
+  --muted-text: 107 107 132;
+  --secondary-text: 209 209 214;
+  --custom-border: 255 255 255;
+  --foreground: 241 241 245;
+  --secondary-surface: 20 20 30;
+  --sidebar-active: 24 24 36;
+  --custom-border-alpha: 0.07;
+}
+
+/* Smooth theme transitions instead of an abrupt color snap */
+* {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
 @layer base {
   body {
     background-color: #08080d;

@@ -31,14 +31,16 @@ export default async function BrowseStartupsPage() {
     <div className="space-y-6">
       <div>
         <p className="text-[10px] font-mono text-mutedText uppercase tracking-widest">
-          Browse
+          Archive
         </p>
-        <h1 className="text-xl font-bold text-white mt-0.5">
-          Startup Directory
+        <h1 className="text-xl font-bold text-foreground mt-0.5">
+          Startup Archive
         </h1>
         <p className="text-xs text-mutedText mt-1">
-          Real startups, sourced from public startup data across the US.
-          Click a card to see full details.
+          Real historical startups, mostly Y Combinator alumni across the
+          US -- a mix of currently operating, acquired, and closed
+          companies. This isn't a live "seeking funding" list. Click a
+          card to see full details.
         </p>
       </div>
 

@@ -15,10 +15,12 @@ export default async function SettingsPage() {
     .eq("id", user!.id)
     .single();
 
-  const { data: marketRows } = await supabase.rpc("get_market_options", {
-    limit_count: 60,
-  });
+  const [{ data: marketRows }, { data: cityRows }] = await Promise.all([
+    supabase.rpc("get_market_options", { limit_count: 60 }),
+    supabase.rpc("get_city_options", { limit_count: 100 }),
+  ]);
   const marketOptions = (marketRows ?? []).map((r: { market: string }) => r.market).sort((a: string, b: string) => a.localeCompare(b));
+  const cityOptions = (cityRows ?? []).map((r: { city: string }) => r.city).sort((a: string, b: string) => a.localeCompare(b));
 
   return (
     <div className="space-y-6">
@@ -26,7 +28,7 @@ export default async function SettingsPage() {
         <p className="text-[10px] font-mono text-mutedText uppercase tracking-widest">
           Settings
         </p>
-        <h1 className="text-xl font-bold text-white mt-0.5">
+        <h1 className="text-xl font-bold text-foreground mt-0.5">
           Account Settings
         </h1>
         <p className="text-xs text-mutedText mt-1">
@@ -39,6 +41,7 @@ export default async function SettingsPage() {
         email={user!.email ?? ""}
         profile={profile}
         marketOptions={marketOptions}
+        cityOptions={cityOptions}
       />
     </div>
   );

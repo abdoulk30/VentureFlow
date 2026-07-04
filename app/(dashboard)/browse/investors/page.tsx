@@ -35,7 +35,7 @@ export default async function BrowseInvestorsPage() {
         <p className="text-[10px] font-mono text-mutedText uppercase tracking-widest">
           Browse
         </p>
-        <h1 className="text-xl font-bold text-white mt-0.5">
+        <h1 className="text-xl font-bold text-foreground mt-0.5">
           Investor Directory
         </h1>
         <p className="text-xs text-mutedText mt-1">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sparkles, Loader2, Activity } from "lucide-react";
 import { STAGES } from "@/lib/constants";
+import { formatNumber } from "@/lib/format";
 
 interface PredictResult {
   hasData: boolean;
@@ -54,7 +55,7 @@ function ScoreGauge({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold text-white font-mono">{score}</span>
+        <span className="text-4xl font-bold text-foreground font-mono">{score}</span>
         <span className="text-xs text-mutedText">/100</span>
       </div>
     </div>
@@ -65,8 +66,8 @@ function BreakdownBar({ label, value }: { label: string; value: number }) {
   return (
     <div>
       <div className="flex justify-between mb-1.5">
-        <span className="text-sm text-neutral-300">{label}</span>
-        <span className="text-sm font-semibold text-white">{value}%</span>
+        <span className="text-sm text-secondaryText">{label}</span>
+        <span className="text-sm font-semibold text-foreground">{value}%</span>
       </div>
       <div className="h-1.5 rounded-full bg-surfaceMuted overflow-hidden">
         <div
@@ -141,7 +142,7 @@ export default function PredictForm({
             value={city}
             onChange={(e) => setCity(e.target.value)}
             required
-            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
           >
             <option value="">Select a city...</option>
             {cityOptions.map((c) => (
@@ -159,7 +160,7 @@ export default function PredictForm({
             value={market}
             onChange={(e) => setMarket(e.target.value)}
             required
-            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
           >
             <option value="">Select an industry...</option>
             {marketOptions.map((m) => (
@@ -177,7 +178,7 @@ export default function PredictForm({
             value={stage}
             onChange={(e) => setStage(e.target.value)}
             required
-            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
           >
             <option value="">Select...</option>
             {STAGES.map((s) => (
@@ -214,7 +215,7 @@ export default function PredictForm({
                   <p className="text-[10px] font-mono uppercase tracking-widest text-mutedText">
                     Funding Likelihood Score
                   </p>
-                  <h3 className="text-lg font-bold text-white mt-0.5">
+                  <h3 className="text-lg font-bold text-foreground mt-0.5">
                     Based on Real Historical Data
                   </h3>
                 </div>
@@ -248,13 +249,13 @@ export default function PredictForm({
 
               <div className="border-t border-customBorder pt-4">
                 <p className="text-xs text-mutedText">
-                  Based on <span className="text-white font-semibold">{result.totalMatches} real historical companies</span> &middot; {market} &times; {city}
+                  Based on <span className="text-foreground font-semibold">{formatNumber(result.totalMatches)} real historical startup companies</span> &middot; {market} &times; {city}
                 </p>
                 <p className="text-[10px] text-mutedText mt-2 leading-relaxed">
-                  <span className="text-neutral-400">Sector Alignment</span>: how established this industry is overall.{" "}
-                  <span className="text-neutral-400">City Density</span>: how much of this industry's activity happens in this city.{" "}
-                  <span className="text-neutral-400">Stage Fit</span>: what % of similar companies reached your selected stage.{" "}
-                  <span className="text-neutral-400">Trend Velocity</span>: what % were founded in the last 5 years. Each is a real statistic from historical data, not a prediction model.
+                  <span className="text-secondaryText">Sector Alignment</span>: how established this industry is overall.{" "}
+                  <span className="text-secondaryText">City Density</span>: how much of this industry's activity happens in this city.{" "}
+                  <span className="text-secondaryText">Stage Fit</span>: what % of similar startup companies reached your selected stage.{" "}
+                  <span className="text-secondaryText">Trend Velocity</span>: what % were founded in the last 5 years. Each is a real statistic from historical data, not a prediction model.
                 </p>
               </div>
             </div>

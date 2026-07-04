@@ -17,7 +17,7 @@ export default function SignOutButton() {
     <button
       onClick={handleSignOut}
       title="Sign out"
-      className="text-mutedText hover:text-white transition-colors shrink-0"
+      className="text-mutedText hover:text-foreground transition-colors shrink-0"
     >
       <LogOut size={14} />
     </button>

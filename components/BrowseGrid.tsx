@@ -41,7 +41,7 @@ export default function BrowseGrid({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name, city, category..."
-          className="bg-transparent text-sm text-white placeholder-mutedText outline-none w-full"
+          className="bg-transparent text-sm text-foreground placeholder-mutedText outline-none w-full"
         />
       </div>
 
@@ -67,7 +67,7 @@ export default function BrowseGrid({
                     <div className="size-7 rounded bg-surfaceMuted border border-customBorder flex items-center justify-center shrink-0 text-accentPrimary">
                       <Building2 size={13} />
                     </div>
-                    <h3 className="text-sm font-bold text-white group-hover:text-accentPrimary transition-colors truncate">
+                    <h3 className="text-sm font-bold text-foreground group-hover:text-accentPrimary transition-colors truncate">
                       {item.name}
                     </h3>
                   </div>
@@ -79,7 +79,7 @@ export default function BrowseGrid({
                   </p>
                 )}
                 {item.description && (
-                  <p className="text-xs text-neutral-400 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-secondaryText line-clamp-3 leading-relaxed">
                     {item.description}
                   </p>
                 )}

@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         hasData: false,
         totalMatches: 0,
         message:
-          "We couldn't find any real historical companies matching this city and industry. Try a nearby major city, or a broader industry.",
+          "We couldn't find any real historical startup companies matching this city and industry. Try a nearby major city, or a broader industry.",
       });
     }
 

@@ -34,7 +34,7 @@ export default function DetailModal({
       >
         <div className="sticky top-0 bg-cardBg border-b border-customBorder px-6 py-4 flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-bold text-white">{item.name}</h2>
+            <h2 className="text-lg font-bold text-foreground">{item.name}</h2>
             {(item.city || item.state) && (
               <p className="text-xs text-mutedText flex items-center gap-1 mt-1">
                 <MapPin size={11} />
@@ -44,7 +44,7 @@ export default function DetailModal({
           </div>
           <button
             onClick={onClose}
-            className="text-mutedText hover:text-white transition-colors shrink-0"
+            className="text-mutedText hover:text-foreground transition-colors shrink-0"
           >
             <X size={18} />
           </button>
@@ -52,7 +52,7 @@ export default function DetailModal({
 
         <div className="p-6 space-y-5">
           {item.description && (
-            <p className="text-sm text-neutral-300 leading-relaxed">
+            <p className="text-sm text-secondaryText leading-relaxed">
               {item.description}
             </p>
           )}
@@ -62,7 +62,7 @@ export default function DetailModal({
               <span className="font-mono text-[10px] uppercase tracking-wider text-mutedText">
                 Status
               </span>
-              <span className="px-2 py-0.5 rounded bg-surfaceMuted border border-customBorder text-white">
+              <span className="px-2 py-0.5 rounded bg-surfaceMuted border border-customBorder text-foreground">
                 {item.status}
               </span>
             </div>
@@ -73,7 +73,7 @@ export default function DetailModal({
               <span className="font-mono text-[10px] uppercase tracking-wider text-mutedText">
                 Founded
               </span>
-              <span className="text-white">{item.year_founded}</span>
+              <span className="text-foreground">{item.year_founded}</span>
             </div>
           )}
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { formatNumber } from "@/lib/format";
 
 interface CityFunding {
   city: string;
@@ -18,8 +19,10 @@ function formatUSD(n: number) {
 
 export default function CapitalDensityMap({
   marketOptions,
+  metric = "funding",
 }: {
   marketOptions: string[];
+  metric?: "funding" | "count";
 }) {
   const [market, setMarket] = useState(marketOptions[0] ?? "");
   const [data, setData] = useState<CityFunding[]>([]);
@@ -31,7 +34,9 @@ export default function CapitalDensityMap({
     if (!market) return;
     setLoading(true);
     setError(null);
-    fetch(`/api/city-funding-by-market?market=${encodeURIComponent(market)}`)
+    fetch(
+      `/api/city-funding-by-market?market=${encodeURIComponent(market)}&metric=${metric}`
+    )
       .then((res) => res.json())
       .then((json) => {
         if (json.error) {
@@ -43,25 +48,28 @@ export default function CapitalDensityMap({
       })
       .catch(() => setError("Could not load data."))
       .finally(() => setLoading(false));
-  }, [market]);
+  }, [market, metric]);
 
-  const maxFunding = Math.max(...data.map((d) => d.total_funding), 1);
+  const maxValue = Math.max(
+    ...data.map((d) => (metric === "count" ? d.deal_count : d.total_funding)),
+    1
+  );
 
   return (
     <div className="bg-cardBg border border-customBorder rounded-xl p-5">
       <div className="flex items-center justify-between mb-1 flex-wrap gap-3">
         <div>
           <p className="text-[10px] font-mono uppercase tracking-widest text-mutedText">
-            Capital Density Map
+            {metric === "count" ? "Deal Flow Map" : "Capital Density Map"}
           </p>
-          <h3 className="text-sm font-semibold text-white mt-0.5">
-            Total Funding by City
+          <h3 className="text-sm font-semibold text-foreground mt-0.5">
+            {metric === "count" ? "Most Active Cities (Startup Companies)" : "Total Funding by City (Startup Companies)"}
           </h3>
         </div>
         <select
           value={market}
           onChange={(e) => setMarket(e.target.value)}
-          className="bg-surfaceMuted border border-customBorder rounded px-3 py-1.5 text-xs text-white outline-none focus:border-accentPrimary/50"
+          className="bg-surfaceMuted border border-customBorder rounded px-3 py-1.5 text-xs text-foreground outline-none focus:border-accentPrimary/50"
         >
           {marketOptions.map((m) => (
             <option key={m} value={m}>
@@ -71,8 +79,9 @@ export default function CapitalDensityMap({
         </select>
       </div>
       <p className="text-[11px] text-mutedText mb-6">
-        Real total historical funding raised by companies in each city, for
-        the selected industry.
+        {metric === "count"
+          ? "Real number of startup companies in each city, for the selected industry -- useful for finding where deal flow is concentrated."
+          : "Real total historical funding raised by startup companies in each city, for the selected industry."}
       </p>
 
       {loading ? (
@@ -83,12 +92,13 @@ export default function CapitalDensityMap({
         <p className="text-xs text-destructive">{error}</p>
       ) : data.length === 0 ? (
         <p className="text-xs text-mutedText text-center py-10">
-          No real companies found for this industry.
+          No real startup companies found for this industry.
         </p>
       ) : (
         <div className="relative h-52 flex items-end justify-between gap-3 px-1">
           {data.map((d) => {
-            const heightPct = Math.max((d.total_funding / maxFunding) * 100, 3);
+            const value = metric === "count" ? d.deal_count : d.total_funding;
+            const heightPct = Math.max((value / maxValue) * 100, 3);
             return (
               <div
                 key={d.city}
@@ -98,9 +108,11 @@ export default function CapitalDensityMap({
               >
                 {hovered === d.city && (
                   <div className="absolute bottom-full mb-2 z-10 bg-surfaceMuted border border-customBorder rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
-                    <p className="text-xs font-semibold text-white">{d.city}</p>
+                    <p className="text-xs font-semibold text-foreground">{d.city}</p>
                     <p className="text-[11px] text-mutedText">
-                      {formatUSD(d.total_funding)} &middot; {d.deal_count} companies
+                      {metric === "count"
+                        ? `${formatNumber(d.deal_count)} startup companies`
+                        : `${formatUSD(d.total_funding)} · ${formatNumber(d.deal_count)} startup companies`}
                     </p>
                   </div>
                 )}

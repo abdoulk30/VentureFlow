@@ -65,7 +65,7 @@ export function OnboardingWizard({
 
   return (
     <div className="w-full max-w-md bg-cardBg border border-customBorder rounded-xl p-8">
-      <h2 className="text-lg font-bold text-white">Complete Your Profile</h2>
+      <h2 className="text-lg font-bold text-foreground">Complete Your Profile</h2>
       <p className="text-xs text-mutedText mt-1 mb-6">
         This unlocks the Funding Likelihood tool. You can already browse
         without filling this out.
@@ -88,7 +88,7 @@ export function OnboardingWizard({
               value={city ?? ""}
               onChange={(e) => setCity(e.target.value)}
               placeholder="e.g. New York"
-              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white placeholder-mutedText outline-none focus:border-accentPrimary/50"
+              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground placeholder-mutedText outline-none focus:border-accentPrimary/50"
             />
           </div>
           <div>
@@ -99,7 +99,7 @@ export function OnboardingWizard({
               required
               value={state}
               onChange={(e) => setState(e.target.value)}
-              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
             >
               <option value="">Select...</option>
               {US_STATES.map((s) => (
@@ -119,7 +119,7 @@ export function OnboardingWizard({
             required
             value={sector}
             onChange={(e) => setSector(e.target.value)}
-            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
           >
             <option value="">Select...</option>
             {marketOptions.map((m) => (
@@ -141,7 +141,7 @@ export function OnboardingWizard({
             required
             value={stage}
             onChange={(e) => setStage(e.target.value)}
-            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
           >
             <option value="">Select...</option>
             {STAGES.map((s) => (

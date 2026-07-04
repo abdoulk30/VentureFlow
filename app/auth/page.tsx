@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/client';
 import { Zap, Building2, User, ArrowRight } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -82,7 +83,10 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-white font-sans">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-foreground font-sans">
+      <div className="fixed top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="sm:mx-auto w-full max-w-md">
         <div className="flex items-center justify-center gap-2.5 mb-6">
           <div className="w-8 h-8 bg-accentPrimary flex items-center justify-center rounded">
@@ -90,7 +94,7 @@ export default function AuthPage() {
           </div>
           <span className="font-bold text-xl tracking-tight">VentureFlow</span>
         </div>
-        <h2 className="text-center text-xl font-extrabold tracking-tight text-white">
+        <h2 className="text-center text-xl font-extrabold tracking-tight text-foreground">
           {isSignUp ? 'Create your ecosystem workspace account' : 'Sign in to your account'}
         </h2>
         <p className="mt-2 text-center text-sm text-mutedText">
@@ -137,8 +141,8 @@ export default function AuthPage() {
                       onClick={() => setRole('founder')}
                       className={`p-3 rounded border text-xs font-semibold flex flex-col items-center gap-2 transition-all ${
                         role === 'founder'
-                          ? 'bg-accentPrimary/10 border-accentPrimary text-white'
-                          : 'bg-[#13121a] border-customBorder text-mutedText hover:text-white'
+                          ? 'bg-accentPrimary/10 border-accentPrimary text-foreground'
+                          : 'bg-surfaceMuted border-customBorder text-mutedText hover:text-foreground'
                       }`}
                     >
                       <User className="w-4 h-4" />
@@ -149,8 +153,8 @@ export default function AuthPage() {
                       onClick={() => setRole('investor')}
                       className={`p-3 rounded border text-xs font-semibold flex flex-col items-center gap-2 transition-all ${
                         role === 'investor'
-                          ? 'bg-accentSuccess/10 border-accentSuccess text-white'
-                          : 'bg-[#13121a] border-customBorder text-mutedText hover:text-white'
+                          ? 'bg-accentSuccess/10 border-accentSuccess text-foreground'
+                          : 'bg-surfaceMuted border-customBorder text-mutedText hover:text-foreground'
                       }`}
                     >
                       <Building2 className="w-4 h-4" />
@@ -168,7 +172,7 @@ export default function AuthPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="E.g., Sarah Jenkins"
-                    className="w-full bg-[#13121a] border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-white mt-1"
+                    className="w-full bg-surfaceMuted border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-foreground mt-1"
                   />
                 </div>
 
@@ -183,7 +187,7 @@ export default function AuthPage() {
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder={role === 'founder' ? 'NovaSynth AI' : 'Index Growth Partners'}
-                    className="w-full bg-[#13121a] border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-white mt-1"
+                    className="w-full bg-surfaceMuted border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-foreground mt-1"
                   />
                 </div>
               </>
@@ -199,7 +203,7 @@ export default function AuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@firm.com"
-                className="w-full bg-[#13121a] border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-white mt-1"
+                className="w-full bg-surfaceMuted border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-foreground mt-1"
               />
             </div>
 
@@ -213,7 +217,7 @@ export default function AuthPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-[#13121a] border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-white mt-1"
+                className="w-full bg-surfaceMuted border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-foreground mt-1"
               />
             </div>
 
@@ -228,7 +232,7 @@ export default function AuthPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-[#13121a] border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-white mt-1"
+                  className="w-full bg-surfaceMuted border border-customBorder rounded p-2.5 text-xs focus:outline-none focus:border-accentPrimary transition-colors text-foreground mt-1"
                 />
               </div>
             )}

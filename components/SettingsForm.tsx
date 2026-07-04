@@ -22,11 +22,13 @@ export default function SettingsForm({
   email,
   profile,
   marketOptions,
+  cityOptions,
 }: {
   userId: string;
   email: string;
   profile: Profile | null;
   marketOptions: string[];
+  cityOptions: string[];
 }) {
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
   const [companyName, setCompanyName] = useState(profile?.company_name ?? "");
@@ -42,14 +44,22 @@ export default function SettingsForm({
 
   const isFounder = profile?.user_role === "founder";
 
-  const checklist = [
-    { label: "Basic Info", done: !!(fullName && companyName) },
-    { label: "City", done: !!city },
-    { label: "Industry", done: !!sector },
-    { label: "Funding Stage", done: !!stage },
-    { label: "Description", done: !!description },
-    { label: "Goals", done: !!goals },
-  ];
+  const checklist = isFounder
+    ? [
+        { label: "Basic Info", done: !!(fullName && companyName) },
+        { label: "City", done: !!city },
+        { label: "Industry", done: !!sector },
+        { label: "Funding Stage", done: !!stage },
+        { label: "Description", done: !!description },
+        { label: "Goals", done: !!goals },
+      ]
+    : [
+        { label: "Basic Info", done: !!(fullName && companyName) },
+        { label: "City", done: !!city },
+        { label: "Industry", done: !!sector },
+        { label: "Description", done: !!description },
+        { label: "What You're Looking For", done: !!goals },
+      ];
   const completeness = Math.round(
     (checklist.filter((c) => c.done).length / checklist.length) * 100
   );
@@ -60,7 +70,7 @@ export default function SettingsForm({
     setSaved(false);
     setError(null);
 
-    const isCoreComplete = !!(city && sector && stage);
+    const isCoreComplete = isFounder ? !!(city && sector && stage) : !!(city && sector);
 
     const { error: updateError } = await supabase
       .from("profiles")
@@ -105,7 +115,7 @@ export default function SettingsForm({
               <input
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+                className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
               />
             </div>
             <div>
@@ -115,7 +125,7 @@ export default function SettingsForm({
               <input
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+                className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
               />
             </div>
           </div>
@@ -135,18 +145,25 @@ export default function SettingsForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs text-mutedText mb-1.5">City</label>
-            <input
+            <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
-            />
+              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
+            >
+              <option value="">Select...</option>
+              {cityOptions.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-xs text-mutedText mb-1.5">State</label>
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
-              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
             >
               <option value="">Select...</option>
               {US_STATES.map((s) => (
@@ -166,7 +183,7 @@ export default function SettingsForm({
             <select
               value={sector}
               onChange={(e) => setSector(e.target.value)}
-              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
+              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
             >
               <option value="">Select...</option>
               {marketOptions.map((m) => (
@@ -178,47 +195,53 @@ export default function SettingsForm({
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs text-mutedText mb-1.5">
-            Funding Stage
-          </label>
-          <select
-            value={stage}
-            onChange={(e) => setStage(e.target.value)}
-            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white outline-none focus:border-accentPrimary/50"
-          >
-            <option value="">Select...</option>
-            {STAGES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {isFounder && (
+          <div>
+            <label className="block text-xs text-mutedText mb-1.5">
+              Funding Stage
+            </label>
+            <select
+              value={stage}
+              onChange={(e) => setStage(e.target.value)}
+              className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground outline-none focus:border-accentPrimary/50"
+            >
+              <option value="">Select...</option>
+              {STAGES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="block text-xs text-mutedText mb-1.5">
-            {isFounder ? "Company Description" : "Firm Description"} (optional)
+            Company Description (optional)
           </label>
           <textarea
             value={description ?? ""}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             placeholder="A short summary of what you do."
-            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white placeholder-mutedText outline-none focus:border-accentPrimary/50 resize-none"
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground placeholder-mutedText outline-none focus:border-accentPrimary/50 resize-none"
           />
         </div>
 
         <div>
           <label className="block text-xs text-mutedText mb-1.5">
-            Goals (optional)
+            {isFounder ? "Goals (optional)" : "What Are You Looking For? (optional)"}
           </label>
           <textarea
             value={goals ?? ""}
             onChange={(e) => setGoals(e.target.value)}
             rows={2}
-            placeholder="What are you hoping to achieve?"
-            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-white placeholder-mutedText outline-none focus:border-accentPrimary/50 resize-none"
+            placeholder={
+              isFounder
+                ? "What are you hoping to achieve?"
+                : "Describe the kind of startups you want to invest in (sectors, stages, deal size, etc)."
+            }
+            className="w-full bg-surfaceMuted border border-customBorder rounded px-3 py-2 text-sm text-foreground placeholder-mutedText outline-none focus:border-accentPrimary/50 resize-none"
           />
         </div>
 
@@ -241,11 +264,11 @@ export default function SettingsForm({
       <div className="space-y-4">
         <div className="bg-cardBg border border-customBorder rounded-xl p-5">
           <div className="size-16 rounded-full bg-gradient-to-br from-accentPrimary to-accentSuccess flex items-center justify-center mx-auto">
-            <span className="text-xl font-bold text-white">
+            <span className="text-xl font-bold text-foreground">
               {fullName?.charAt(0)?.toUpperCase() ?? "?"}
             </span>
           </div>
-          <p className="text-center text-sm font-semibold text-white mt-3">
+          <p className="text-center text-sm font-semibold text-foreground mt-3">
             {fullName || "Your Name"}
           </p>
           <p className="text-center text-xs text-mutedText">
@@ -265,7 +288,7 @@ export default function SettingsForm({
                 ) : (
                   <Circle size={13} className="text-mutedText shrink-0" />
                 )}
-                <span className={item.done ? "text-white" : "text-mutedText"}>
+                <span className={item.done ? "text-foreground" : "text-mutedText"}>
                   {item.label}
                 </span>
               </div>
