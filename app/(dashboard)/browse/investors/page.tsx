@@ -1,21 +1,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUserAndProfile } from "@/utils/supabase/get-profile";
 import BrowseGrid from "@/components/BrowseGrid";
 
 export const dynamic = "force-dynamic";
 
 export default async function BrowseInvestorsPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("user_role")
-    .eq("id", user!.id)
-    .single();
+  const { profile } = await getCurrentUserAndProfile();
 
   // Real access control, not just a hidden nav link: investors browse
   // startups, not other investors, so this page isn't for them even if

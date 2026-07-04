@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentUserAndProfile } from "@/utils/supabase/get-profile";
 import {
   Building2,
   Briefcase,
@@ -16,21 +16,11 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, profile } = await getCurrentUserAndProfile();
 
   if (!user) {
     redirect("/auth");
   }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
 
   const isProfileComplete = !!profile?.is_profile_complete;
   const isFounder = profile?.user_role === "founder";

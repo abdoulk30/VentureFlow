@@ -1,19 +1,12 @@
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUserAndProfile } from "@/utils/supabase/get-profile";
 import SettingsForm from "@/components/SettingsForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user!.id)
-    .single();
+  const { user, profile } = await getCurrentUserAndProfile();
 
   const [{ data: marketRows }, { data: cityRows }] = await Promise.all([
     supabase.rpc("get_market_options", { limit_count: 60 }),

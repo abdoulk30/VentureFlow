@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUserAndProfile } from "@/utils/supabase/get-profile";
 import { Briefcase, Building2, MapPin, Tag, Layers, PieChart } from "lucide-react";
 import CapitalDensityMap from "@/components/CapitalDensityMap";
 import { formatNumber } from "@/lib/format";
@@ -66,18 +67,13 @@ function BreakdownList({ data, max }: { data: CountRow[]; max: number }) {
 
 export default async function DirectoriesPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { profile } = await getCurrentUserAndProfile();
 
   const [
-    { data: profile },
     { data: startups, error: startupsError },
     { data: investors, error: investorsError },
     { data: marketRows },
   ] = await Promise.all([
-    supabase.from("profiles").select("user_role").eq("id", user!.id).single(),
     supabase.from("startups_directory").select("*"),
     supabase.from("investors_directory").select("*"),
     supabase.rpc("get_market_options", { limit_count: 60 }),

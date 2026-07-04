@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUserAndProfile } from "@/utils/supabase/get-profile";
 import { AlertTriangle } from "lucide-react";
 import PredictForm from "@/components/PredictForm";
 
@@ -8,15 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function MarketExplorerPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user!.id)
-    .single();
+  const { profile } = await getCurrentUserAndProfile();
 
   // Market Explorer is investor-only -- founders get Funding Likelihood
   // instead, which reuses the exact same real underlying data.

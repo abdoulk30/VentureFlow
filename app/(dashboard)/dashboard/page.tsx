@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUserAndProfile } from "@/utils/supabase/get-profile";
 import { MapPin, Layers, GitBranch, AlertCircle, TrendingUp } from "lucide-react";
 import MatchedInvestors, { MatchedInvestor } from "@/components/MatchedInvestors";
 import MatchedStartups, { MatchedStartup } from "@/components/MatchedStartups";
@@ -46,16 +47,7 @@ function formatUSD(n: number) {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user!.id)
-    .single();
+  const { profile } = await getCurrentUserAndProfile();
 
   const isFounder = profile?.user_role === "founder";
   const isProfileComplete = !!profile?.is_profile_complete;
