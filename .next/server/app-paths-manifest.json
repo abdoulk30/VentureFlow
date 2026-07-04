@@ -1,10 +1,3 @@
 {
-  "/api/city-funding-by-market/route": "app/api/city-funding-by-market/route.js",
-  "/auth/page": "app/auth/page.js",
-  "/(dashboard)/directories/page": "app/(dashboard)/directories/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(dashboard)/browse/startups/page": "app/(dashboard)/browse/startups/page.js",
-  "/(dashboard)/browse/investors/page": "app/(dashboard)/browse/investors/page.js",
-  "/(dashboard)/market-explorer/page": "app/(dashboard)/market-explorer/page.js",
-  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js"
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js"
 }
