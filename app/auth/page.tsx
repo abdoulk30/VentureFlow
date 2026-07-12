@@ -60,8 +60,18 @@ export default function AuthPage() {
             });
 
           if (profileError) throw profileError;
-          
-          setSuccessMsg('Registration initialized! Please check your email inbox to verify your secure portal link.');
+
+          if (authData.session) {
+            // Email confirmation is OFF in Supabase, so signUp() already
+            // returned a real, active session -- the person is genuinely
+            // logged in right now. Don't tell them to check their email
+            // (no email was sent), just take them straight into the app.
+            window.location.href = '/';
+          } else {
+            // Email confirmation IS required -- no session yet, so this
+            // message is actually accurate in this case.
+            setSuccessMsg('Registration initialized! Please check your email inbox to verify your secure portal link.');
+          }
         }
       } else {
         // Log in utilizing the modern cookie framework matching the server environment
